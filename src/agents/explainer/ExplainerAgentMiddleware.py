@@ -7,10 +7,11 @@ from typing import Any
 
 from langchain.agents import AgentState
 from langchain.agents.middleware import AgentMiddleware, ModelRequest, ModelResponse
-from langchain_litellm import ChatLiteLLM
+from langchain.chat_models import BaseChatModel
 from langgraph.runtime import Runtime
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
 
 
@@ -89,17 +90,12 @@ class ExplainerAgentMiddleware(AgentMiddleware):
         return PromptCatalog.EXPLAINER_SYSTEM_PROMPT.value
 
     @staticmethod
-    def get_model_for_role(user_role: str, model):
+    def get_model_for_role(user_role: str, model: BaseChatModel):
         """Return the model name based on the user's role."""
 
         if user_role == 'expert':
-            model = ChatLiteLLM(
-                model=ModelInfo.ADVANCED_MODEL.value,
-            )
+            model = ModelFactory.create_model(ModelInfo.ADVANCED_MODEL_TYPE.value)
         elif user_role == 'child':
-            model = ChatLiteLLM(
-                model=ModelInfo.BASIC_MODEL.value,
-                temperature=ModelInfo.BASIC_MODEL_TEMPERATURE.value,
-            )
+            model = ModelFactory.create_model(ModelInfo.BASIC_MODEL_TYPE.value)
 
         return model

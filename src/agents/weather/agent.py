@@ -3,9 +3,8 @@ Weather agent initialization and configuration.
 """
 from typing import Any, cast
 
-from langchain_litellm import ChatLiteLLM
-
 from langchain.agents import create_agent
+from langchain.chat_models import BaseChatModel
 
 from dotenv import load_dotenv
 from langgraph.checkpoint.memory import InMemorySaver
@@ -16,21 +15,11 @@ from src.tools.weather.tool import get_weather
 from src.tools.user.tool import locate_user
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
 
 
 load_dotenv()
-
-
-def _create_chat_model(
-    model: str = ModelInfo.DEFAULT_MODEL.value,
-    temperature: float = ModelInfo.DEFAULT_MODEL_TEMPERATURE.value,
-) -> ChatLiteLLM:
-    """Create and configure the chat model used by the weather assistant."""
-    return ChatLiteLLM(
-        model=model,
-        temperature=temperature,
-    )
 
 
 def get_agent_with_city_input():
@@ -40,7 +29,7 @@ def get_agent_with_city_input():
         A LangChain agent configured with the weather tool and a system prompt
         for providing reliable weather information.
     """
-    model: ChatLiteLLM = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     agent = create_agent(
         model=model,
         tools=[get_weather],
@@ -63,7 +52,7 @@ def get_agent_with_user_memory():
     runtime_context_schema = cast(Any, Context)
     agent_checkpointer = cast(Any, checkpointer)
 
-    model: ChatLiteLLM = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     agent = create_agent(
         model=model,
         tools=[get_weather, locate_user],

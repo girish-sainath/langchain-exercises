@@ -5,12 +5,13 @@ from base64 import b64encode
 from collections.abc import Buffer
 from pathlib import Path
 
-from langchain_litellm import ChatLiteLLM
-
 from dotenv import load_dotenv
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
+
+from langchain.chat_models import BaseChatModel
 
 
 load_dotenv()
@@ -18,17 +19,6 @@ load_dotenv()
 
 # Resolve path relative to this module's directory
 DEFAULT_IMAGE_PATH = Path(__file__).parent / 'brain_logo.png'
-
-
-def _create_chat_model(
-    model: str = ModelInfo.DEFAULT_MODEL.value,
-    temperature: float = ModelInfo.DEFAULT_MODEL_TEMPERATURE.value,
-) -> ChatLiteLLM:
-    """Create and configure the chat model used by the image description assistant."""
-    return ChatLiteLLM(
-        model=model,
-        temperature=temperature,
-    )
 
 
 def _get_image_as_base64(file_path: Path | str = DEFAULT_IMAGE_PATH) -> str | None:
@@ -52,7 +42,7 @@ def _get_image_as_base64(file_path: Path | str = DEFAULT_IMAGE_PATH) -> str | No
 
 def execute_image_description_chat() -> None:
     """Run an interactive terminal chat loop for image description with print option."""
-    chat_model: ChatLiteLLM = _create_chat_model()
+    chat_model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
 
     image_base64 = _get_image_as_base64(DEFAULT_IMAGE_PATH)
     if image_base64 is None:

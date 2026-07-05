@@ -69,3 +69,21 @@ uv run python src/tools/knowledge_base/tool.py
 - **Models** (`src/models/`) — centralized model configuration and metadata.
 - **Prompts** (`src/prompts/`) — centralized prompt templates and catalogs.
 - **Middleware** (`src/agents/explainer/`) — two styles side by side: functional decorators (`@wrap_model_call`, `@dynamic_prompt`) and a class-based `AgentMiddleware` with full lifecycle hooks.
+
+
+## LangChain
+
+```python
+from typing import Any
+
+from langchain.tools import tool, ToolRuntime
+@tool('<tool_name>', description='<tool_description>', return_direct=False)
+def tool_definition(runtime: ToolRuntime) -> Any:
+    """Tool description"""
+    return '<tool_output>'
+
+
+
+
+
+```

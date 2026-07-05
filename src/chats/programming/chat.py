@@ -2,13 +2,13 @@
 
 from collections.abc import Callable
 
-from langchain_litellm import ChatLiteLLM
-
 from langchain.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
+from langchain.chat_models import BaseChatModel
 
 from dotenv import load_dotenv
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
 
 
@@ -16,19 +16,6 @@ load_dotenv()
 
 
 EXIT_COMMAND = 'exit'
-
-
-def _create_chat_model(
-    model: str = ModelInfo.DEFAULT_MODEL.value,
-    temperature: float = ModelInfo.DEFAULT_MODEL_TEMPERATURE.value,
-    streaming: bool = False,
-) -> ChatLiteLLM:
-    """Create and configure the chat model used by the programming assistant."""
-    return ChatLiteLLM(
-        model=model,
-        temperature=temperature,
-        streaming=streaming,
-    )
 
 
 def _run_chat_session(
@@ -57,7 +44,7 @@ def _run_chat_session(
 
 
 def _build_invoke_chat(
-        chat_model_instance: ChatLiteLLM) -> Callable[[list[AnyMessage]], AIMessage]:
+        chat_model_instance: BaseChatModel) -> Callable[[list[AnyMessage]], AIMessage]:
     """Build a chat function that returns complete responses in one invoke call."""
     def _chat_with_invoke(conversations: list[AnyMessage]) -> AIMessage:
         return chat_model_instance.invoke(conversations)
@@ -66,7 +53,7 @@ def _build_invoke_chat(
 
 
 def _build_stream_chat(
-    chat_model_instance: ChatLiteLLM) -> Callable[[list[AnyMessage]], AIMessage]:
+    chat_model_instance: BaseChatModel) -> Callable[[list[AnyMessage]], AIMessage]:
     """Build a chat function that streams output while accumulating the final message."""
     def _chat_with_stream(conversations: list[AnyMessage]) -> AIMessage:
         print('Streaming started...')
@@ -81,7 +68,7 @@ def _build_stream_chat(
 
 def chat_with_print_option() -> None:
     """Start the programming assistant using non-streaming model invocation."""
-    model = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     chat_func = _build_invoke_chat(model)
     _run_chat_session(
         chat_func,
@@ -91,7 +78,7 @@ def chat_with_print_option() -> None:
 
 def chat_with_stream_option() -> None:
     """Start the programming assistant with token-by-token streamed output."""
-    model: ChatLiteLLM = _create_chat_model(streaming=True)
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value, streaming=True)
     chat_func = _build_stream_chat(model)
     _run_chat_session(
         chat_func,

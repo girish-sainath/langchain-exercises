@@ -1,27 +1,17 @@
 """Knowledge Base agent initialization and configuration."""
 from dotenv import load_dotenv
 
-from langchain_litellm import ChatLiteLLM
+from langchain.chat_models import BaseChatModel
 
 from langchain.agents import create_agent
 
 from src.tools.knowledge_base.tool import get_retriever_tool
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
 
 
 load_dotenv()
-
-
-def _create_chat_model(
-    model: str = ModelInfo.DEFAULT_MODEL.value,
-    temperature: float = ModelInfo.DEFAULT_MODEL_TEMPERATURE.value,
-) -> ChatLiteLLM:
-    """Create and configure the chat model used by the knowledge base assistant."""
-    return ChatLiteLLM(
-        model=model,
-        temperature=temperature,
-    )
 
 
 def get_agent():
@@ -32,7 +22,7 @@ def get_agent():
         for providing reliable weather information.
     """
     retriever_tool = get_retriever_tool()
-    model: ChatLiteLLM = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     agent = create_agent(
         model=model,
         tools=[retriever_tool],

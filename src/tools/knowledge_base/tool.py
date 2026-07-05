@@ -7,10 +7,10 @@ from dotenv import load_dotenv
 from langchain_core.tools import create_retriever_tool, StructuredTool
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import VectorStoreRetriever, VectorStore
-from langchain_litellm import LiteLLMEmbeddings  # pylint: disable=no-name-in-module
 from langchain_chroma import Chroma  # pylint: disable=import-error
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 
 load_dotenv()
 
@@ -21,7 +21,7 @@ def _get_vector_store() -> VectorStore:
     Returns:
         A Chroma vector store containing the knowledge base documents.
     """
-    embedding: Embeddings = LiteLLMEmbeddings(model=ModelInfo.DEFAULT_EMBEDDING_MODEL.value)
+    embedding: Embeddings = ModelFactory.create_embedding_model()
 
     texts: list[str] = [
         'I love apples',

@@ -3,7 +3,7 @@ from typing import Any, Literal, cast
 
 from dotenv import load_dotenv
 
-from langchain_litellm import ChatLiteLLM
+from langchain.chat_models import BaseChatModel
 
 from langchain.agents import create_agent
 from langchain.agents.middleware import (
@@ -18,6 +18,7 @@ from src.agents.explainer.Context import Context
 from src.agents.explainer.ExplainerAgentMiddleware import ExplainerAgentMiddleware
 
 from src.models.ModelInfo import ModelInfo
+from src.models.ModelFactory import ModelFactory
 
 
 load_dotenv()
@@ -41,17 +42,6 @@ def user_role_prompt(request: ModelRequest) -> str:
     return ExplainerAgentMiddleware.get_prompt_for_role(user_role)
 
 
-def _create_chat_model(
-    model: str = ModelInfo.DEFAULT_MODEL.value,
-    temperature: float = ModelInfo.DEFAULT_MODEL_TEMPERATURE.value,
-) -> ChatLiteLLM:
-    """Create and configure the chat model used by the knowledge base assistant."""
-    return ChatLiteLLM(
-        model=model,
-        temperature=temperature,
-    )
-
-
 def get_agent_with_custom_middlewares():
     """Create and return a knowledge base agent equipped with the knowledge base search tool.
 
@@ -59,7 +49,7 @@ def get_agent_with_custom_middlewares():
         A LangChain agent configured with the knowledge base tool and a system prompt
         for providing reliable weather information.
     """
-    model: ChatLiteLLM = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     runtime_context_schema = cast(Any, Context)
     agent = create_agent(
         model=model,
@@ -87,7 +77,7 @@ def get_agent_with_agent_middleware():
         A LangChain agent configured with the knowledge base tool and a system prompt
         for providing reliable weather information.
     """
-    model: ChatLiteLLM = _create_chat_model()
+    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     runtime_context_schema = cast(Any, Context)
     agent = create_agent(
         model=model,

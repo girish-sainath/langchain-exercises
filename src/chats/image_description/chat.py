@@ -7,11 +7,11 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from langchain.chat_models import BaseChatModel
+
 from src.models.ModelInfo import ModelInfo
 from src.models.ModelFactory import ModelFactory
 from src.prompts.PromptCatalog import PromptCatalog
-
-from langchain.chat_models import BaseChatModel
 
 
 load_dotenv()

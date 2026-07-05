@@ -78,7 +78,10 @@ def chat_with_print_option() -> None:
 
 def chat_with_stream_option() -> None:
     """Start the programming assistant with token-by-token streamed output."""
-    model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value, streaming=True)
+    model: BaseChatModel = ModelFactory.create_model(
+        model_type=ModelInfo.DEFAULT_MODEL_TYPE.value,
+        streaming=True,
+    )
     chat_func = _build_stream_chat(model)
     _run_chat_session(
         chat_func,

@@ -27,7 +27,11 @@ class ModelFactory:  # pylint: disable=too-few-public-methods
     """
 
     @staticmethod
-    def create_model(model_type: str, temperature: Optional[float] = None, streaming: bool = False) -> BaseChatModel:
+    def create_model(
+            model_type: str,
+            temperature: Optional[float] = None,
+            streaming: bool = False,
+    ) -> BaseChatModel:
         """
         Create and return an instance of the specified model.
 

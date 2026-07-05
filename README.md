@@ -76,14 +76,147 @@ uv run python src/tools/knowledge_base/tool.py
 ```python
 from typing import Any
 
+"""
+Tool definition example for LangChain 1.0.0+ with LiteLLM
+"""
 from langchain.tools import tool, ToolRuntime
-@tool('<tool_name>', description='<tool_description>', return_direct=False)
-def tool_definition(runtime: ToolRuntime) -> Any:
-    """Tool description"""
+@tool('get_weather', description='Tool to get the latest weather information', return_direct=False)
+def get_weather(runtime: ToolRuntime) -> Any:
+    """
+    Tool definition
+    """
     return '<tool_output>'
 
 
+"""
+RAG based Retriever Tool example for LangChain 1.0.0+ with LiteLLM
+"""
+from langchain_core.tools import create_retriever_tool, StructuredTool
+from langchain_core.retrievers import BaseRetriever
+
+def retriever_tool(retriever: BaseRetriever) -> StructuredTool:
+    """
+    Create a retriever tool from a BaseRetriever
+    """
+    return create_retriever_tool(
+        name='retriever_tool',
+        description='A retriever tool for LangChain with LiteLLM',
+        retriever=retriever,
+    )
 
 
+"""
+Chat Model example for LangChain 1.0.0+ with LiteLLM
+"""
+from langchain.chat_models import BaseChatModel
+from langchain_litellm import ChatLiteLLM
+
+def create_model_with_litellm() -> BaseChatModel:
+    """
+    Create a chat model using LiteLLM
+    """
+    model = ChatLiteLLM(
+        model='gpt-4o-mini',
+        temperature=0.1,
+    )
+    return model
+
+
+"""
+Chat Model example for LangChain 1.0.0+ with init_chat_model
+"""
+from langchain.chat_models import init_chat_model
+
+def create_model_with_init_chat_model() -> BaseChatModel:
+    """
+    Create a chat model using init_chat_model
+    """
+    model: BaseChatModel = init_chat_model(
+        model='gpt-4o-mini',
+        temperature=0.7,
+    )
+    return model
+
+
+"""
+Invoke BaseChatModel example for LangChain 1.0.0+ with LiteLLM
+"""
+chat_model: BaseChatModel = create_model_with_litellm()
+chat_response = chat_model.invoke(
+    [
+        {'role': 'system', 'content': 'You are a helpful assistant.'},
+        {'role': 'user', 'content': 'Hello! Can you help me with LangChain?'},
+    ],
+)
+
+"""
+Invoke BaseChatModel example for LangChain 1.0.0+ with init_chat_model with streaming and conversation history
+"""
+
+from langchain.messages import SystemMessage, HumanMessage, AIMessage
+
+chat_model: BaseChatModel = create_model_with_init_chat_model()
+conversations = [
+    SystemMessage(content='You are a helpful assistant.'),
+]
+
+while True:
+    user_input = input("User: ")
+    if user_input.lower() in ['exit', 'quit']:
+        break
+    conversations.append(HumanMessage(content=user_input))
+    full_response = ''
+    for chunk in chat_model.stream(conversations):
+        print(chunk.content, end='', flush=True)
+        full_response += chunk.content
+    conversations.append(AIMessage(content=full_response))
+
+"""
+Agent example for LangChain 1.0.0+
+"""
+
+from langchain.agents import create_agent
+
+model: BaseChatModel = create_model_with_litellm()
+agent = create_agent(
+    model=model,
+    tools=[get_weather],
+    system_prompt = 'Your are a helpful assistant that can provide weather information.',
+)
+
+agent_response = agent.invoke(
+    {
+        'messages': [
+            {
+                'role': 'user',
+                'content': 'What is the weather like in New York City today?',
+            }
+        ],
+    },
+)
+
+
+"""
+Agent example for LangChain 1.0.0+ with init_chat_model with streaming and conversation history
+"""
+chat_model: BaseChatModel = create_model_with_init_chat_model()
+agent = create_agent(
+    model=chat_model,
+    tools=[get_weather],
+)
+conversations = [
+    SystemMessage(content='Your are a helpful assistant that can provide weather information.'),
+]
+
+while True:
+    user_input = input("User: ")
+    if user_input.lower() in ['exit', 'quit']:
+        break
+    conversations.append(HumanMessage(content=user_input))
+    full_response = ''
+    for chunk in agent.stream(conversations):
+        print(chunk.content, end='', flush=True)
+        full_response += chunk.content
+    conversations.append(AIMessage(content=full_response))
 
 ```

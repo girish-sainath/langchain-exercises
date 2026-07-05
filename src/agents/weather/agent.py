@@ -7,8 +7,6 @@ from langchain.agents import create_agent
 from langchain.chat_models import BaseChatModel
 
 from dotenv import load_dotenv
-from langgraph.checkpoint.memory import InMemorySaver
-from langgraph.checkpoint.serde.jsonplus import JsonPlusSerializer
 
 from src.agents.weather.Context import Context
 from src.tools.weather.tool import get_weather
@@ -46,11 +44,7 @@ def get_agent_with_user_memory():
         A LangChain agent configured with the weather tool and a system prompt
         for providing reliable weather information, capable of handling user memory.
     """
-
-    serde = JsonPlusSerializer(allowed_msgpack_modules=[Context])
-    checkpointer = InMemorySaver(serde=serde)
     runtime_context_schema = cast(Any, Context)
-    agent_checkpointer = cast(Any, checkpointer)
 
     model: BaseChatModel = ModelFactory.create_model(ModelInfo.DEFAULT_MODEL_TYPE.value)
     agent = create_agent(
@@ -58,7 +52,6 @@ def get_agent_with_user_memory():
         tools=[get_weather, locate_user],
         system_prompt = PromptCatalog.WEATHER_SYSTEM_PROMPT.value,
         context_schema=runtime_context_schema,
-        checkpointer=agent_checkpointer,
     )
 
     return agent

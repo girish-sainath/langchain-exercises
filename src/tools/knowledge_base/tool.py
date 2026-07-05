@@ -7,9 +7,9 @@ from dotenv import load_dotenv
 from langchain_core.tools import create_retriever_tool, StructuredTool
 from langchain_core.embeddings import Embeddings
 from langchain_core.vectorstores import VectorStoreRetriever, VectorStore
+from langchain_core.retrievers import BaseRetriever
 from langchain_chroma import Chroma  # pylint: disable=import-error
 
-from src.models.ModelInfo import ModelInfo
 from src.models.ModelFactory import ModelFactory
 
 load_dotenv()
@@ -52,7 +52,7 @@ def get_retriever_tool() -> StructuredTool:
     Returns:
         A retriever tool that can be used to search the knowledge base.
     """
-    retriever = _get_retriever()
+    retriever: BaseRetriever = _get_retriever()
     return create_retriever_tool(
         retriever,
         name='kb_search',

@@ -1,4 +1,4 @@
-# langchain-exercises
+# LangChain Exercises by Neural Nine
 
 A collection of LangChain exercises demonstrating chat, agents, tools, RAG, and middleware patterns connecting to LLM via LiteLLM.
 
